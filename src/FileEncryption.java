@@ -28,6 +28,7 @@ public class FileEncryption {
         random.nextBytes(iv);
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
         cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+        outputFile += ".bin";
 
         try (FileInputStream inputStream = new FileInputStream(inputFile);
              FileOutputStream outputStream = new FileOutputStream(outputFile)) {
@@ -86,16 +87,18 @@ public class FileEncryption {
         System.out.print("Ruta del archivo de entrada: ");
         String inputFile = scanner.nextLine();
 
-        System.out.print("Ruta del archivo de salida: ");
-        String outputFile = scanner.nextLine();
 
         try {
             if (choice.equals("1")) {
+                System.out.print("Nombre del archivo de salida (sin extensión): ");
+                String outputFile = scanner.nextLine();
                 SecretKey key = generateKey();
                 System.out.println("Clave generada (guardar para descifrar): " + Base64.getEncoder().encodeToString(key.getEncoded()));
                 encryptFile(inputFile, outputFile, key);
                 System.out.println("Archivo cifrado exitosamente: " + outputFile);
             } else if (choice.equals("2")) {
+                System.out.print("Nombre del archivo de salida (con extensión original): ");
+                String outputFile = scanner.nextLine();
                 System.out.print("Ingrese la clave en Base64: ");
                 String keyBase64 = scanner.nextLine();
                 keyBase64 = keyBase64.trim();
