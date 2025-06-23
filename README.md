@@ -32,11 +32,14 @@ Se importan las dependencias para el cifrado y descifrado, generación de claves
  - Métodos:
 
    Método generateKey: Genera una clave AES-256 aleatoria.
+   
    Método encryptFile: Cifra un archivo de entrada y guarda el resultado en un archivo de salida. Crea un objeto Cipher con la configuración AES/CBC/PKCS5Padding.
     Genera un IV aleatorio de 16 bytes usando SecureRandom (para que un mismo archivo cifrado dos veces resulte diferente).
     Configura el cifrado en modo ENCRYPT_MODE con la clave y el IV.
     Abre el archivo de entrada con FileInputStream y el de salida con FileOutputStream. En el cifrado mismo, comienza escribiendo el IV al inicio del archivo de salida (necesario para el descifrado), después se lee el archivo de entrada en bloques de 1024 bytes, cada bloque se va cifrando con cipher.update y guardando el resultado. Por último, finaliza el cifrado con cipher.doFinal para procesar los datos restantes y el padding.
+   
    Método decryptFile: Descifra un archivo cifrado y guarda el contenido original en un archivo de salida. Crea de nuevo un objeto Cipher con la configuración AES/CBC/PKCS5Padding. Lee los primeros 16 bytes del archivo cifrado, que corresponden al IV (vector de inicialización) almacenado durante el cifrado. Después, configura el descifrado en modo DECRYPT_MODE con la clave proporcionada y el IV recuperado. Abre el archivo cifrado con FileInputStream y el de salida con FileOutputStream. En el descifrado mismo, se lee el archivo cifrado en bloques de 1024 bytes (ignorando los primeros 16 bytes del IV), cada bloque se descifra con cipher.update y se escribe el resultado en el archivo de salida. Por último, finaliza el descifrado con cipher.doFinal para eliminar el padding y procesar los datos restantes.
+   
    Método main: Proporciona una interfaz de consola. Muestra un menú con las opciones "1. Cifrar archivo" y "2. Descifrar archivo".
    En ambos casos, mediante el objeto Scanner para leer la escritura en consola, primero se pide la ruta del archivo de entrada.
    Si se elige cifrar (opción 1), se pide el nombre del archivo de salida (sin extensión), se genera una clave AES-256, la muestra en Base64 para que el usuario la guarde, y llama a encryptFile para realizar el cifrado.
