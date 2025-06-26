@@ -1,47 +1,81 @@
-# seguridad-informatica-TP2
+# Informe Técnico: seguridad-informatica-TP2
 
-Instrucciones de uso:
+## Introducción
 
-Ubicar el archivo Main.jar en alguna carpeta. Por simplicidad, llevar a la misma carpeta el archivo a cifrar
-Abrir una terminal en la ruta de dicha carpeta, ejecutar el código "java -jar Main.jar"
- - Para cifrar:
-   Seleccionar la opción 1, escribir el nombre del archivo junto a su extensión (incluyendo la ruta si se encuentra en una dirección diferente a Main.jar).
-   Escribir el nombre del archivo de salida, sin extensión, ya que se cifra el archivo a un formato .bin .
-   Guardar la clave generada para descifrar el archivo.
+Este proyecto implementa una herramienta de cifrado y descifrado de archivos utilizando el algoritmo AES-256 en modo CBC con padding PKCS5. El objetivo es proteger la confidencialidad de archivos mediante una clave secreta generada aleatoriamente para cada operación de cifrado.
 
- - Para descifrar:
-   Volver a ejecutar el código "java -jar Main.jar" y seleccionar la opción 2.
-   Ingresar el nombre del archivo cifrado junto a su extensión .bin .
-   Ingresar el nombre del archivo de salida junto a su extensión original.
-   Ingresar la clave generada al momento de cifrar.
+## Funcionamiento del Código
 
+### 1. Algoritmo y Configuración
+- **Algoritmo:** AES (Advanced Encryption Standard)
+- **Modo:** CBC (Cipher Block Chaining)
+- **Padding:** PKCS5Padding
+- **Tamaño de clave:** 256 bits
+- **Tamaño del IV:** 16 bytes
 
-Explicación del código:
+### 2. Componentes Principales
 
-Se importan las dependencias para el cifrado y descifrado, generación de claves, números aleatorios seguros para el IV, codificación y decodificación de datos en formato Base64 (para la clave), y lectura de la entrada del usuario desde la consola.
- - Constantes:
-   
-   ALGORITHM: Especifica el algoritmo criptográfico AES (Advanced Encryption Standard).
-   TRANSFORMATION: Define la configuración completa del cifrado:
-     AES: Algoritmo.
-     CBC: Modo de operación (Cipher Block Chaining).
-     PKCS5Padding: Relleno para asegurar que los datos tengan un tamaño múltiplo del tamaño de bloque (16 bytes para AES).
-   KEY_SIZE: Tamaño de la clave en bits (256).
-   IV_SIZE: Tamaño del vector de inicialización en bytes (16 bytes para AES en modo CBC).
- 
- - Métodos:
+#### a) Generación de Clave
+- Se utiliza `KeyGenerator` para crear una clave AES-256 aleatoria.
+- La clave se muestra al usuario en formato Base64 para facilitar su almacenamiento y reutilización.
 
-   Método generateKey: Genera una clave AES-256 aleatoria.
-   
-   Método encryptFile: Cifra un archivo de entrada y guarda el resultado en un archivo de salida. Crea un objeto Cipher con la configuración AES/CBC/PKCS5Padding.
-    Genera un IV aleatorio de 16 bytes usando SecureRandom (para que un mismo archivo cifrado dos veces resulte diferente).
-    Configura el cifrado en modo ENCRYPT_MODE con la clave y el IV.
-    Abre el archivo de entrada con FileInputStream y el de salida con FileOutputStream. En el cifrado mismo, comienza escribiendo el IV al inicio del archivo de salida (necesario para el descifrado), después se lee el archivo de entrada en bloques de 1024 bytes, cada bloque se va cifrando con cipher.update y guardando el resultado. Por último, finaliza el cifrado con cipher.doFinal para procesar los datos restantes y el padding.
-   
-   Método decryptFile: Descifra un archivo cifrado y guarda el contenido original en un archivo de salida. Crea de nuevo un objeto Cipher con la configuración AES/CBC/PKCS5Padding. Lee los primeros 16 bytes del archivo cifrado, que corresponden al IV (vector de inicialización) almacenado durante el cifrado. Después, configura el descifrado en modo DECRYPT_MODE con la clave proporcionada y el IV recuperado. Abre el archivo cifrado con FileInputStream y el de salida con FileOutputStream. En el descifrado mismo, se lee el archivo cifrado en bloques de 1024 bytes (ignorando los primeros 16 bytes del IV), cada bloque se descifra con cipher.update y se escribe el resultado en el archivo de salida. Por último, finaliza el descifrado con cipher.doFinal para eliminar el padding y procesar los datos restantes.
-   
-   Método main: Proporciona una interfaz de consola. Muestra un menú con las opciones "1. Cifrar archivo" y "2. Descifrar archivo".
-   En ambos casos, mediante el objeto Scanner para leer la escritura en consola, primero se pide la ruta del archivo de entrada.
-   Si se elige cifrar (opción 1), se pide el nombre del archivo de salida (sin extensión), se genera una clave AES-256, la muestra en Base64 para que el usuario la guarde, y llama a encryptFile para realizar el cifrado.
-   Si se elige descifrar (opción 2), se pide el nombre del archivo de salida (con la extensión original), se pide la clave en Base64, la decodifica para crear un SecretKey, y llama a decryptFile para realizar el descifrado.
-   Se captura cualquier error (como archivo no encontrado o clave inválida) y muestra un mensaje dado el caso. Para terminar, cierra el Scanner para liberar recursos.
+#### b) Cifrado de Archivos
+- Se genera un IV (vector de inicialización) aleatorio para cada cifrado.
+- El IV se almacena al inicio del archivo cifrado.
+- El archivo se lee en bloques y se cifra usando la clave y el IV.
+- El resultado se guarda en un archivo con extensión `.enc` o `.bin`.
+
+#### c) Descifrado de Archivos
+- Se recupera el IV desde el inicio del archivo cifrado.
+- El usuario debe ingresar la clave Base64 utilizada en el cifrado.
+- El archivo se descifra y se guarda con su extensión original.
+
+#### d) Interfaz Gráfica (GUI)
+- Permite seleccionar archivos, cifrar y descifrar mediante botones.
+- Muestra la clave generada y permite copiarla al portapapeles.
+- Informa al usuario sobre el estado de las operaciones.
+
+## Estructura de Archivos
+- `FileEncryption.java`: Lógica de cifrado y descifrado.
+- `FileEncryptionGUI.java`: Interfaz gráfica de usuario.
+- `README.md`: Este informe y anexo de uso.
+
+## Seguridad
+- Cada archivo cifrado utiliza un IV único, garantizando que el mismo archivo cifrado dos veces produzca resultados diferentes.
+- La clave nunca se almacena en disco, solo se muestra al usuario.
+- El usuario es responsable de guardar la clave Base64 para poder descifrar el archivo posteriormente.
+
+---
+
+## Anexo: Instrucciones de Ejecución
+
+### Compilación y Creación del JAR
+
+1. Asegúrese de tener Java 8 o superior instalado.
+2. Abra una terminal y navegue al directorio del proyecto.
+3. Compile el proyecto con el siguiente comando:
+   ```bash
+   javac -d out src/FileEncryption.java src/FileEncryptionGUI.java
+   jar cfe FileEncryptionGUI.jar FileEncryptionGUI -C out .
+   ```
+
+### Ejecución con Interfaz Gráfica (GUI)
+1. Ejecute el .Jar `FileEncryptionGUI`. o con el comando 
+    ```bash
+    java -jar FileEncryptionGUI.jar
+    ```
+2En la ventana:
+   - Pulse "Explorar..." para seleccionar el archivo.
+   - Pulse "Encriptar" para cifrar. Se mostrará la clave Base64 (cópiela y guárdela).
+   - Para descifrar, seleccione el archivo cifrado, ingrese la clave Base64 y pulse "Desencriptar".
+   - Elija el nombre y ubicación del archivo de salida.
+
+### Requisitos
+- Java 8 o superior.
+
+---
+
+## Créditos
+Trabajo Práctico 2 - Seguridad Informática - UNQ 2025
+
+Autores: Matias Dominguez y Matias Acosta
