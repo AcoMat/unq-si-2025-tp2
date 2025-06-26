@@ -64,7 +64,7 @@ Este proyecto implementa una herramienta de cifrado y descifrado de archivos uti
     ```bash
     java -jar FileEncryptionGUI.jar
     ```
-2En la ventana:
+2. En la ventana:
    - Pulse "Explorar..." para seleccionar el archivo.
    - Pulse "Encriptar" para cifrar. Se mostrará la clave Base64 (cópiela y guárdela).
    - Para descifrar, seleccione el archivo cifrado, ingrese la clave Base64 y pulse "Desencriptar".
