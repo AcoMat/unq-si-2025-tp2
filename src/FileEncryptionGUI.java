@@ -102,9 +102,20 @@ public class FileEncryptionGUI extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             selectedFile = fileChooser.getSelectedFile();
             filePathField.setText(selectedFile.getAbsolutePath());
+
+            // Habilitar siempre el botón de encriptar
             encryptButton.setEnabled(true);
-            decryptButton.setEnabled(true);
-            log("Archivo seleccionado: " + selectedFile.getName());
+
+            // Habilitar el botón de desencriptar solo si el archivo tiene extensión .enc
+            String fileName = selectedFile.getName().toLowerCase();
+            if (fileName.endsWith(".enc")) {
+                decryptButton.setEnabled(true);
+                log("Archivo seleccionado: " + selectedFile.getName() + " (archivo encriptado)");
+            } else {
+                decryptButton.setEnabled(false);
+                log("Archivo seleccionado: " + selectedFile.getName() + " (para encriptar)");
+                log("Nota: Para desencriptar, seleccione un archivo con extensión .enc");
+            }
         }
     }
 
@@ -146,6 +157,17 @@ public class FileEncryptionGUI extends JFrame {
             return;
         }
 
+        // Validar la clave Base64 antes de mostrar el diálogo
+        try {
+            SecretKey key = FileEncryption.stringToKey(keyString.trim());
+            // Si llegamos aquí, la clave es válida
+            log("Clave Base64 válida. Procediendo con la desencriptación...");
+        } catch (Exception ex) {
+            log("Error: La clave Base64 introducida no es válida.");
+            log("Asegúrate de que la clave esté completa y sea correcta.");
+            return; // No continuar si la clave no es válida
+        }
+
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Guardar archivo desencriptado como...");
         // Sugerir nombre de archivo sin la extensión .enc
@@ -160,7 +182,7 @@ public class FileEncryptionGUI extends JFrame {
             File outputFile = fileChooser.getSelectedFile();
             try {
                 log("Desencriptando archivo...");
-                SecretKey key = FileEncryption.stringToKey(keyString);
+                SecretKey key = FileEncryption.stringToKey(keyString.trim());
                 FileEncryption.decryptFile(selectedFile.getAbsolutePath(), outputFile.getAbsolutePath(), key);
                 log("¡Éxito! Archivo desencriptado y guardado como " + outputFile.getName());
             } catch (Exception ex) {
